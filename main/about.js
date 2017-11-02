@@ -25,8 +25,8 @@ const createAboutWindow = () => {
     acceptFirstMouse: true,
     webPreferences: {
       nodeIntegration: true,
-      webSecurity: true
-    }
+      webSecurity: true,
+    },
   });
 
   const devPath = "http://localhost:8000/about";
@@ -34,7 +34,7 @@ const createAboutWindow = () => {
   const prodPath = format({
     pathname: resolve("renderer/out/about/index.html"),
     protocol: "file:",
-    slashes: true
+    slashes: true,
   });
 
   const url = isDev ? devPath : prodPath;

@@ -1,4 +1,6 @@
-const { BrowserWindow, dialog, ipcMain } = require("electron");
+const {
+  BrowserWindow, dialog, ipcMain, app,
+} = require("electron");
 const isDev = require("electron-is-dev");
 const { autoUpdater } = require("electron-updater");
 const { showProgressWindow } = require("./progress");
@@ -20,11 +22,30 @@ autoUpdater.on("checking-for-update", () => {
 });
 
 autoUpdater.on("update-available", info => {
-  console.log(info);
-  showProgressWindow();
-  const downloader = autoUpdater.downloadUpdate(
-    global.updater.cancellationToken
-  );
+  const { cancellationToken } = global.updater;
+  let currentVersion;
+
+  if (isDev) {
+    currentVersion = process.env.npm_package_version;
+  } else {
+    currentVersion = app.getVersion();
+  }
+
+  const options = {
+    title: "Software Update",
+    type: "info",
+    message: "A new version of Caption is available!",
+    detail: `Caption ${info.version} is now available — you have v${currentVersion}. Would you like to download it now?`,
+    buttons: ["Install Update", "Remind Me Later"],
+    defaultId: 0,
+  };
+
+  dialog.showMessageBox(null, options, response => {
+    if (response === 0) {
+      showProgressWindow();
+      autoUpdater.downloadUpdate(cancellationToken);
+    }
+  });
 });
 
 autoUpdater.on("update-not-available", info => {
@@ -34,7 +55,7 @@ autoUpdater.on("update-not-available", info => {
     const options = {
       type: "info",
       message: "Caption is up to date",
-      detail: "It looks like you're already rocking the latest version!"
+      detail: "It looks like you're already rocking the latest version!",
     };
 
     dialog.showMessageBox(null, options);
@@ -46,7 +67,7 @@ autoUpdater.on("error", (event, error) => {
 });
 
 autoUpdater.on("download-progress", progressObj => {
-  const progressWindow = global.windows.progressWindow;
+  const { progressWindow } = global.windows;
   progressWindow.webContents.send("progress", progressObj);
 });
 
@@ -55,19 +76,18 @@ autoUpdater.on("update-downloaded", info => {
 });
 
 const cancelUpdater = () => {
-  const progressWindow = global.windows.progressWindow;
+  const { progressWindow } = global.windows;
   global.updater.cancellationToken.cancel();
   progressWindow.hide();
 };
 
 const checkForUpdates = async () => {
-  console.log(autoUpdater.autoDownload);
   const checking = await autoUpdater.checkForUpdates();
   const { cancellationToken } = checking;
 
   global.updater = {
     cancellationToken,
-    onStartup: false
+    onStartup: false,
   };
 };
 

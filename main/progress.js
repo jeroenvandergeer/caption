@@ -20,7 +20,7 @@ const createProgressWindow = () => {
     maximizable: false,
     closable: false,
     fullscreenable: false,
-    backgroundColor: "#ECECEC"
+    backgroundColor: "#ECECEC",
   });
 
   const devPath = "http://localhost:8000/progress";
@@ -28,7 +28,7 @@ const createProgressWindow = () => {
   const prodPath = format({
     pathname: resolve("renderer/out/progress/index.html"),
     protocol: "file:",
-    slashes: true
+    slashes: true,
   });
 
   const url = isDev ? devPath : prodPath;

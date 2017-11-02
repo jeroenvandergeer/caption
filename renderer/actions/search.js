@@ -2,19 +2,19 @@ import { ipcRenderer } from "electron";
 
 import * as types from "./../types";
 
-export const hideSearchPlaceholder = () => (dispatch) => {
+export const hideSearchPlaceholder = () => dispatch => {
   dispatch({
     type: types.HIDE_SEARCH_PLACEHOLDER,
   });
 };
 
-export const showSearchPlaceholder = () => (dispatch) => {
+export const showSearchPlaceholder = () => dispatch => {
   dispatch({
     type: types.SHOW_SEARCH_PLACEHOLDER,
   });
 };
 
-export const resetSearch = () => (dispatch) => {
+export const resetSearch = () => dispatch => {
   dispatch({
     type: types.RESET_SEARCH,
   });
@@ -22,7 +22,7 @@ export const resetSearch = () => (dispatch) => {
   dispatch(showSearchPlaceholder());
 };
 
-export const updateSearchQuery = query => (dispatch) => {
+export const updateSearchQuery = query => dispatch => {
   dispatch({
     type: types.UPDATE_SEARCH_QUERY,
     payload: {
@@ -31,13 +31,13 @@ export const updateSearchQuery = query => (dispatch) => {
   });
 };
 
-export const showSearchSpinner = () => (dispatch) => {
+export const showSearchSpinner = () => dispatch => {
   dispatch({
     type: types.SHOW_SEARCH_SPINNER,
   });
 };
 
-export const downloadComplete = () => (dispatch) => {
+export const downloadComplete = () => dispatch => {
   dispatch({
     type: types.DOWNLOAD_COMPLETE,
   });
@@ -97,7 +97,7 @@ export const startSearch = () => (dispatch, getState) => {
   return dispatch(resetSearch());
 };
 
-export const dropFiles = files => (dispatch) => {
+export const dropFiles = files => dispatch => {
   dispatch({
     type: types.DROP_FILES,
     payload: {
@@ -111,7 +111,7 @@ export const dropFiles = files => (dispatch) => {
 export const updateSearchResults = ({
   results,
   searchCompleted,
-}) => (dispatch) => {
+}) => dispatch => {
   dispatch({
     type: types.UPDATE_SEARCH_RESULTS,
     payload: {

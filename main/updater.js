@@ -3,11 +3,7 @@ const {
 } = require("electron");
 const isDev = require("electron-is-dev");
 const { autoUpdater } = require("electron-updater");
-const { showProgressWindow } = require("./progress");
-
-ipcMain.on("cancelUpdate", event => {
-  cancelUpdater();
-});
+const { showProgressWindow } = require("./updaterCheck");
 
 ipcMain.on("installUpdate", event => {
   autoUpdater.quitAndInstall();
@@ -16,6 +12,22 @@ ipcMain.on("installUpdate", event => {
 // UPDATER
 autoUpdater.allowPrerelease = isDev;
 autoUpdater.autoDownload = false;
+
+const cancelUpdater = () => {
+  const { progressWindow } = global.windows;
+  global.updater.cancellationToken.cancel();
+  progressWindow.hide();
+};
+
+const checkForUpdates = async () => {
+  const checking = await autoUpdater.checkForUpdates();
+  const { cancellationToken } = checking;
+
+  global.updater = {
+    cancellationToken,
+    onStartup: false,
+  };
+};
 
 autoUpdater.on("checking-for-update", () => {
   console.log("Checking for update...");
@@ -75,20 +87,8 @@ autoUpdater.on("update-downloaded", info => {
   console.log(`Update downloaded; will install in 5 seconds. ${info}`);
 });
 
-const cancelUpdater = () => {
-  const { progressWindow } = global.windows;
-  global.updater.cancellationToken.cancel();
-  progressWindow.hide();
-};
-
-const checkForUpdates = async () => {
-  const checking = await autoUpdater.checkForUpdates();
-  const { cancellationToken } = checking;
-
-  global.updater = {
-    cancellationToken,
-    onStartup: false,
-  };
-};
+ipcMain.on("cancelUpdate", event => {
+  cancelUpdater();
+});
 
 module.exports = { checkForUpdates };

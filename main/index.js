@@ -4,16 +4,18 @@ const Store = require("electron-store");
 
 const { createMainWindow } = require("./main");
 const { createAboutWindow } = require("./about");
-const { createProgressWindow } = require("./progress");
+const { createCheckWindow } = require("./updaterCheck");
+const { createProgressWindow } = require("./updaterProgress");
 
 const { textSearch, fileSearch } = require("./sources");
-const buildMenu = require("./menu");
 const { singleDownload } = require("./download");
 const { download } = require("./sources/addic7ed");
+const buildMenu = require("./menu");
 
 let aboutWindow;
 let mainWindow;
 let progressWindow;
+let checkWindow;
 let willQuitApp = false;
 const store = new Store();
 
@@ -59,20 +61,23 @@ app.on("ready", async () => {
   // Windows
   mainWindow = createMainWindow();
   aboutWindow = createAboutWindow();
+  checkWindow = createCheckWindow();
   progressWindow = createProgressWindow();
 
   // Menu
-  const menu = buildMenu(aboutWindow, showAboutWindow);
+  buildMenu(aboutWindow, showAboutWindow);
   aboutWindow.on("close", event => onCloseAboutWindow(event));
 
   // Setting globals
   global.windows = {
     mainWindow,
     aboutWindow,
-    progressWindow
+    checkWindow,
+    progressWindow,
   };
+
   global.updater = {
-    onStartup: true
+    onStartup: true,
   };
 
   initSettings();
@@ -81,7 +86,7 @@ app.on("ready", async () => {
     if (!item) {
       return false;
     }
-    
+
     if (item.source === "addic7ed") {
       return download(item);
     }
@@ -90,14 +95,15 @@ app.on("ready", async () => {
   });
 
   ipcMain.on("textSearch", async (event, query, language) =>
-    textSearch(query, language, "all")
-  );
+    textSearch(query, language, "all"));
 
-  ipcMain.on("fileSearch", async (event, files, language) => {
-    fileSearch(files, language, "best");
-  });
+  ipcMain.on("fileSearch", async (event, files, language) =>
+    fileSearch(files, language, "best"));
 });
 
 // Quit the app once all windows are closed
-app.on("before-quit", () => (willQuitApp = true));
+app.on("before-quit", () => {
+  willQuitApp = true;
+});
+
 app.on("window-all-closed", app.quit);
